@@ -120,7 +120,7 @@ class Application:
         """
         prompts the user with the question and recurses on invalid input
 
-        :return str: the user answer
+        :return: None
         """
         self.current_answer = input(self.current_question)
         if not self.current_answer.lstrip('-').isdigit():
@@ -138,7 +138,7 @@ class Application:
 
         :param category str: the arithmetic category selected by the user
         :param difficulty str: the difficulty level; defaults to 'easy'
-        :return : None
+        :return str: string representation of question
         """
         while True:  # do-while in python
             if difficulty == "easy":
