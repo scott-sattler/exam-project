@@ -6,10 +6,54 @@ main.py
 from datetime import datetime
 import data
 import random
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Callable
+import operator
+from dataclasses import dataclass
 
 
 StrInt = Union[str, int]
+
+
+@dataclass
+class Question:
+    num1: int
+    num2: int
+    question_type: str
+
+    operator_mapping = {
+        '+': {'callable': operator.add, 'opposite_callable': operator.sub},
+        '-': {'callable': operator.sub, 'opposite_callable': operator.add},
+        '/': {'callable': operator.truediv, 'opposite_callable': operator.mul},
+        '*': {'callable': operator.mul, 'opposite_callable': operator.truediv},
+    }
+
+    @property
+    def operator_callable(self):
+        return self.operator_mapping[self.question_type]['callable']
+
+    @property
+    def operator_opposite_callable(self):
+        return self.operator_mapping[self.question_type]['opposite_callable']
+
+    @property
+    def operands(self):
+        if self.question_type in ['/', '-']:
+            operand2, answer = max(self.num1, self.num2), min(self.num1, self.num2)
+            operand1 = self.operator_opposite_callable(answer, operand2)
+        elif self.question_type in ['*', '+']:
+            operand1, operand2 = min(self.num1, self.num2), max(self.num1, self.num2)
+            answer = self.operator_callable(operand1, operand2)
+        else:
+            raise ValueError(f'invalid question type: {self.question_type}')
+
+        return {'operand1': operand1, 'operand2': operand2, 'answer': answer}
+
+    @property
+    def question_string(self):
+        return f"What is {self.operands['operand1']} {self.question_type} {self.operands['operand2']}?  "
+
+    def check_answer(self, attempt):
+        return True if attempt == self.operands['answer'] else False
 
 
 class Application:
@@ -18,6 +62,7 @@ class Application:
 
     user_id: Optional[str] = None
     category: Optional[str] = None
+    category_string: Optional[str] = None
     difficulty: str = "easy"
     current_question: Optional[str] = None
     current_answer: Optional[StrInt] = None
@@ -54,21 +99,32 @@ class Application:
         # begins test by requesting user id and category
         if self.user_id is None:
             self.user_id = input("Please identify yourself: ")
-        if self.category is None:
-            self.category = self.change_subject()
-        # for multiple-test takers, category change is prompted
-        else:
-            while True:
-                subject_change = input("Change category? [Y/N]")
-                if subject_change.lower() == 'y' or subject_change.lower() == 'n':
-                    break
-            if subject_change == 'y':
-                self.category = self.change_subject()
 
+        if self.category is None:
+            self.change_subject()
+
+        self._ask_questions()
+
+        continue_input = self._ask_continue()
+        if continue_input:
+            # recursive call for additional tests
+            self.administer_test()
+
+        self._reset_values()
+
+        return
+
+    def _reset_values(self):
+        self.correct = 0
+        self.incorrect = 0
+
+        return
+
+    def _ask_questions(self):
         # administers test questions until the end of the specific test length
         for i in range(self.test_length):
-            self.current_question = self.generate_question(self.category)
-            self.asked_questions.append(self.current_question)
+            self.current_question = self.generate_question()
+            self.asked_questions.append(self.current_question.question_string)
 
             # ask the question
             self._ask_question()
@@ -79,36 +135,6 @@ class Application:
         print(f"** You've answered {self.correct} of {self.correct + self.incorrect} questions correctly. **")
         self.save_file(self.user_id, self.category, str(self.correct) + "/" + str(self.correct + self.incorrect))
 
-        # reset values
-        self.correct = 0
-        self.incorrect = 0
-
-        # recursive call for additional tests
-        while True:
-            continue_input = input("Would you like to take another test? [Y/N]")
-            if continue_input.lower() == 'y' or continue_input.lower() == 'n':
-                if continue_input.lower() == 'y':
-                    self.administer_test()
-                    break
-                else:
-                    break
-
-    def _check_answer(self):
-        """
-        checks the user answer
-
-        :return: None
-        """
-        # TODO: remove use of str slicing and eval -- good for now, low priority, but too many ways this could go wrong
-        correct_answer = eval(self.current_question[8:-3])
-        if correct_answer == self.current_answer:
-            self.correct += 1
-            print('correct', end=" || ")
-        else:
-            self.incorrect += 1
-            print(f'incorrect (the answer is {correct_answer})', end=" || ")
-        print(f'{self.correct} correct : {self.incorrect} incorrect')
-
         return
 
     def _ask_question(self):
@@ -117,7 +143,7 @@ class Application:
 
         :return: None
         """
-        self.current_answer = input(self.current_question)
+        self.current_answer = input(self.current_question.question_string)
         if not self.current_answer.lstrip('-').isdigit():
             print("Please provide a valid answer.")
             return self._ask_question()
@@ -126,47 +152,61 @@ class Application:
 
         return
 
-    # generates pseudo-unique, randomized operands
-    def generate_question(self, category: str, difficulty: str = "easy"):
+    def _check_answer(self):
+        """
+        checks the user answer
+
+        :return: None
+        """
+        if self.current_question.check_answer(self.current_answer):
+            self.correct += 1
+            print('correct', end=" || ")
+        else:
+            self.incorrect += 1
+            print(f'incorrect (the answer is {self.current_question.operands["answer"]})', end=" || ")
+        print(f'{self.correct} correct : {self.incorrect} incorrect')
+
+        return
+
+    def _ask_continue(self):
+        continue_input = input(f"Would you like to take another {self.category_string.capitalize()} test? [Y/N]").lower()
+        if continue_input not in ('y', 'n'):
+            return self.ask_continue()
+        return True if continue_input == 'y' else False
+
+    @property
+    def number_ranges(self):
+        ranges = {
+            "+": {"lower": 0 + self.pi_factor, "upper": 100 * self.pi_factor},
+            "-": {"lower": 0 + self.pi_factor, "upper": 100 * self.pi_factor},
+            "*": {"lower": 0 + self.pi_factor, "upper": 10 * self.pi_factor},
+            "/": {"lower": 3 * self.pi_factor, "upper": 10 * self.pi_factor},
+        }
+        return ranges
+
+    @property
+    def lower_range(self):
+        return self.number_ranges[self.category]['lower']
+
+    @property
+    def upper_range(self):
+        return self.number_ranges[self.category]['upper']
+
+    def generate_question(self):
         """
         generate a question to ask the user
+        generates pseudo-unique, randomized operands
 
         :param category str: the arithmetic category selected by the user
         :param difficulty str: the difficulty level; defaults to 'easy'
-        :return str: string representation of question
+        :return: None
         """
-        while True:  # do-while in python
-            if difficulty == "easy":
-                if category != "/":
-                    if category == "+" or category == "-":
-                        lower_range = 0 + self.pi_factor
-                        upper_range = 100 * self.pi_factor
-                    elif category == "*":
-                        lower_range = 0 + self.pi_factor
-                        upper_range = 10 * self.pi_factor
-                    else:
-                        break
-
-                    num1 = random.randint(lower_range, upper_range)
-                    num2 = random.randint(lower_range, upper_range)
-
-                elif category == "/":
-                    lower_range = 3 * self.pi_factor
-                    upper_range = 100 * self.pi_factor
-                    nums = [random.randint(lower_range, upper_range), random.randint(lower_range, upper_range)]
-                    # restricts answer to int and >2
-                    while (max(nums) % min(nums) != 0) or (max(nums) / min(nums) < 3):
-                        nums = [random.randint(lower_range, upper_range), random.randint(lower_range, upper_range)]
-                    num1 = max(nums)
-                    num2 = min(nums)
-
-                else:
-                    break
-
-                # checks for pseudo-uniqueness
-                question = f"What is {num1} {category} {num2}?  "
-                if question not in self.asked_questions:
-                    return question
+        num1 = random.randint(self.lower_range, self.upper_range)
+        num2 = random.randint(self.lower_range, self.upper_range)
+        question = Question(num1, num2, self.category)
+        if question in self.asked_questions:
+            self.generate_question()
+        return question
 
     def change_subject(self):
         """
@@ -176,29 +216,25 @@ class Application:
 
         :return str: subject to be examined selected by user
         """
-        display_message = (
-            'Please identify examination type:\n'
-            '\t"addition"\t\tor\t"+"\n'
-            '\t"subtraction"\t\tor\t"-"\n'
-            '\t"multiplication"\tor\t"*"\n'
-            '\t"division"\t\tor\t"/"\n'
-        )
-
-        while True:
-            subject = input(display_message)
-            if subject.lower() in self.valid_subjects.keys() or subject.lower() in self.valid_subjects.values():
-                break
+        formatted_operator_options = '\n'.join([f'\t{k}\t\tor\t{v}' for k, v in self.valid_subjects.items()])
+        display_message = f'Please identify examination type:\n {formatted_operator_options}\n'
+        subject = input(display_message)
+        if subject.lower() not in self.valid_subjects.keys() and subject.lower() not in self.valid_subjects.values():
             print("Invalid entry.")
+            return self.change_subject()
 
         # parse user input
-        if len(subject) > 1:
-            selection = subject
-            subject = self.valid_subjects[selection]
+        if subject in self.valid_subjects.keys():
+            self.category_string = subject
+            self.category = self.valid_subjects[subject]
+        elif subject in self.valid_subjects.values():
+            self.category_string = [k for k, v in self.valid_subjects.items() if subject == v][0]
+            self.category = subject
         else:
-            selection = [k for k, v in self.valid_subjects.items() if subject == v][0]
+            raise ValueError(f'Invalid entry: {subject}')
 
-        print(f"{selection.capitalize()} has been selected.")
-        return subject
+        print(f"{self.category_string.capitalize()} has been selected.")
+        return
 
     def parse_user_input(self, user_input: str):
         """
