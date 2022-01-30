@@ -286,6 +286,7 @@ class Application:
         )
         file.close()
 
+    # test
     @staticmethod
     def display_logs(self):
         """
