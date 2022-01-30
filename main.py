@@ -10,6 +10,7 @@ from typing import Optional, List, Dict, Union
 
 StrInt = Union[str, int]
 
+
 class Application:
     welcome_message: str = "Welcome to Python Institute's elementary arithmetic examination."
     helper_reminder: str = '-Type "help" to see available commands.\n'
@@ -285,8 +286,7 @@ class Application:
         )
         file.close()
 
-    # fn vs method; static
-    # logs are not specific to instance ? etc
+    @staticmethod
     def display_logs(self):
         """
         displays exam history
