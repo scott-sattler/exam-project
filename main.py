@@ -8,13 +8,8 @@ import data
 import random
 from typing import Optional, List, Dict, Union
 
-StrInt = Union[str, int]
 
-# NOTE-TO-SELF:
-# when exactly use __int__ declarations and, uh, normal declarations under class
-# methods vs functions, when and where
-# fn vs method; static
-# logs are not specific to instance ? etc
+StrInt = Union[str, int]
 
 
 class Application:
