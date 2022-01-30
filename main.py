@@ -6,8 +6,9 @@ main.py
 from datetime import datetime
 import data
 import random
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 
+StrInt = Union[str, int]
 
 # NOTE-TO-SELF:
 # when exactly use __int__ declarations and, uh, normal declarations under class
@@ -24,6 +25,7 @@ class Application:
     category: Optional[str] = None
     difficulty: str = "easy"
     current_question: Optional[str] = None
+    current_answer: Optional[StrInt] = None
     correct: int = 0
     incorrect: int = 0
     test_length: int = 3
@@ -69,27 +71,14 @@ class Application:
                 self.category = self.change_subject()
 
         # administers test questions until the end of the specific test length
-        while True and (self.correct + self.incorrect) < int(self.test_length):
+        for i in range(self.test_length):
             self.current_question = self.generate_question(self.category)
             self.asked_questions.append(self.current_question)
 
-            while True:
-                user_answer = input(self.current_question)
-                if user_answer.lstrip('-').isdigit():
-                    break
-                else:
-                    print("Please provide a valid answer.", end="\n")
-
+            # ask the question
+            self._ask_question()
             # checks and records answer
-            user_answer = int(user_answer)
-            correct_answer = int(eval(self.current_question[8:-3]))
-            if correct_answer == user_answer:
-                self.correct += 1
-                print('correct', end=" || ")
-            else:
-                self.incorrect += 1
-                print(f'incorrect (the answer is {correct_answer})', end=" || ")
-            print(f'{self.correct} correct : {self.incorrect} incorrect')
+            self._check_answer()
 
         # provides feedback to the user and logs the results
         print(f"** You've answered {self.correct} of {self.correct + self.incorrect} questions correctly. **")
@@ -109,6 +98,39 @@ class Application:
                 else:
                     break
 
+    def _check_answer(self):
+        """
+        checks the user answer
+
+        :return: None
+        """
+        # TODO: remove use of str slicing and eval -- good for now, low priority, but too many ways this could go wrong
+        correct_answer = eval(self.current_question[8:-3])
+        if correct_answer == self.current_answer:
+            self.correct += 1
+            print('correct', end=" || ")
+        else:
+            self.incorrect += 1
+            print(f'incorrect (the answer is {correct_answer})', end=" || ")
+        print(f'{self.correct} correct : {self.incorrect} incorrect')
+
+        return
+
+    def _ask_question(self):
+        """
+        prompts the user with the question and recurses on invalid input
+
+        :return str: the user answer
+        """
+        self.current_answer = input(self.current_question)
+        if not self.current_answer.lstrip('-').isdigit():
+            print("Please provide a valid answer.")
+            return self._ask_question()
+        else:
+            self.current_answer = int(self.current_answer)
+
+        return
+
     # generates pseudo-unique, randomized operands
     def generate_question(self, category: str, difficulty: str = "easy"):
         """
@@ -116,7 +138,7 @@ class Application:
 
         :param category str: the arithmetic category selected by the user
         :param difficulty str: the difficulty level; defaults to 'easy'
-        :return str: representation of question
+        :return : None
         """
         while True:  # do-while in python
             if difficulty == "easy":
