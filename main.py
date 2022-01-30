@@ -6,8 +6,10 @@ main.py
 from datetime import datetime
 import data
 import random
+from typing import Optional, List, Dict
 
 
+# NOTE-TO-SELF:
 # when exactly use __int__ declarations and, uh, normal declarations under class
 # methods vs functions, when and where
 # fn vs method; static
@@ -15,42 +17,43 @@ import random
 
 
 class Application:
-    var = None
-    welcome_message = "Welcome to Python Institute's elementary arithmetic examination."
-    helper_reminder = '-Type "help" to see available commands.\n'
+    welcome_message: str = "Welcome to Python Institute's elementary arithmetic examination."
+    helper_reminder: str = '-Type "help" to see available commands.\n'
 
-    user_id = None
-    category = None
-    difficulty = "easy"
-    current_question = None
-    correct = 0
-    incorrect = 0
-    test_length = 3
-    test_time = 10
-    time_remaining = test_time
-    asked_questions = []
-    pi_factor = 1
+    user_id: Optional[str] = None
+    category: Optional[str] = None
+    difficulty: str = "easy"
+    current_question: Optional[str] = None
+    correct: int = 0
+    incorrect: int = 0
+    test_length: int = 3
+    test_time: int = 10
+    asked_questions: List[str] = []
+    pi_factor: int = 1
 
-    valid_subjects = {"addition": "+", "subtraction": "-", "multiplication": "*", "division": "/"}
+    valid_subjects: Dict[str, str] = {"addition": "+", "subtraction": "-", "multiplication": "*", "division": "/"}
 
-    help_text = ''.join([each for each in data.commands_box])
-    help_text = help_text + ''.join(data.command_list)
+    help_text: str = ''.join([each for each in data.commands_box])
+    help_text: str = help_text + ''.join(data.command_list)
 
     def __int__(self):
-        # self.category = None
-        # self.current_question = None
-        # self.correct = 0
-        # self.incorrect = 0
         pass
 
-    # mainloop
     def run(self):
+        """
+        mainloop
+        :return:  None
+        """
         print(self.welcome_message)
         while True:
             user_input = input(self.helper_reminder)
             self.parse_user_input(user_input)
 
     def administer_test(self):
+        """
+        administer the test to the user
+        :return: None
+        """
         # begins test by requesting user id and category
         if self.user_id is None:
             self.user_id = input("Please identify yourself: ")
@@ -107,7 +110,14 @@ class Application:
                     break
 
     # generates pseudo-unique, randomized operands
-    def generate_question(self, category, difficulty="easy"):
+    def generate_question(self, category: str, difficulty: str = "easy"):
+        """
+        generate a question to ask the user
+
+        :param category str: the arithmetic category selected by the user
+        :param difficulty str: the difficulty level; defaults to 'easy'
+        :return str: representation of question
+        """
         while True:  # do-while in python
             if difficulty == "easy":
                 if category != "/":
@@ -141,10 +151,14 @@ class Application:
                 if question not in self.asked_questions:
                     return question
 
-    # requests user select the test category
-    # returns selected category
-    # accepts either words (eg "addition") or symbols (eg "+")
     def change_subject(self):
+        """
+        requests user select the test category
+        returns selected category
+        accepts either words (eg "addition") or symbols (eg "+")
+
+        :return str: subject to be examined selected by user
+        """
         display_message = (
             'Please identify examination type:\n'
             '\t"addition"\t\tor\t"+"\n'
@@ -169,8 +183,15 @@ class Application:
         print(f"{selection.capitalize()} has been selected.")
         return subject
 
-    def parse_user_input(self, user_input):
-        # not supported in auto-py-to-exe D:
+    def parse_user_input(self, user_input: str):
+        """
+        parses the user input to the main menu
+
+        * not supported in auto-py-to-exe D:
+
+        :param user_input str: The user input into the main menu
+        :return: None
+        """
         match user_input.lower():
             case 'help':
                 print(self.help_text)
@@ -193,6 +214,11 @@ class Application:
                 print('That command is not recognized as a valid input.')
 
     def set_test_length(self):
+        """
+        updates the length of the test
+
+        :return: None
+        """
         while True:
             self.test_length = input("Enter desired test length: ")
             if self.test_length.isdigit():
@@ -201,9 +227,16 @@ class Application:
                     print(f"Test length has been changed to {self.test_length} questions.")
                     break
 
-    def save_file(self, user, category, score, encrypted=False):
-        # do ROT something for encrypted
+    # TODO: do ROT something for encrypted
+    def save_file(self, user: str, category: str, score: str):
+        """
+        saves the users scores
 
+        :param user str: the user name
+        :param category str: the subject of the exam
+        :param score str: the user score
+        :return: None
+        """
         file_header = "Examination Logs\n"
 
         try:
@@ -240,6 +273,11 @@ class Application:
     # fn vs method; static
     # logs are not specific to instance ? etc
     def display_logs(self):
+        """
+        displays exam history
+
+        :return: None
+        """
         try:
             file = open('user_data_logs.txt', 'r')
         except FileExistsError:
@@ -252,4 +290,5 @@ class Application:
         file.close()
 
 
-Application().run()
+if __name__ == "__main__":
+    Application().run()
