@@ -1,168 +1,250 @@
+"""
+main.py
+* This file is auto-formated using BLACK
+"""
+
 from datetime import datetime
 import data
 import random
+from typing import Optional, List, Dict, Union, Callable
+import operator
+from dataclasses import dataclass
 
 
-# when exactly use __int__ declarations and, uh, normal declarations under class
-# methods vs functions, when and where
-# fn vs method; static
-# logs are not specific to instance ? etc
+StrInt = Union[str, int]
+
+
+@dataclass
+class Question:
+    num1: int
+    num2: int
+    question_type: str
+
+    operator_mapping = {
+        '+': {'callable': operator.add, 'opposite_callable': operator.sub},
+        '-': {'callable': operator.sub, 'opposite_callable': operator.add},
+        '/': {'callable': operator.truediv, 'opposite_callable': operator.mul},
+        '*': {'callable': operator.mul, 'opposite_callable': operator.truediv},
+    }
+
+    @property
+    def operator_callable(self):
+        return self.operator_mapping[self.question_type]['callable']
+
+    @property
+    def operator_opposite_callable(self):
+        return self.operator_mapping[self.question_type]['opposite_callable']
+
+    @property
+    def operands(self):
+        if self.question_type in ['/', '-']:
+            operand2, answer = max(self.num1, self.num2), min(self.num1, self.num2)
+            operand1 = self.operator_opposite_callable(answer, operand2)
+        elif self.question_type in ['*', '+']:
+            operand1, operand2 = min(self.num1, self.num2), max(self.num1, self.num2)
+            answer = self.operator_callable(operand1, operand2)
+        else:
+            raise ValueError(f'invalid question type: {self.question_type}')
+
+        return {'operand1': operand1, 'operand2': operand2, 'answer': answer}
+
+    @property
+    def question_string(self):
+        return f"What is {self.operands['operand1']} {self.question_type} {self.operands['operand2']}?  "
+
+    def check_answer(self, attempt):
+        return True if attempt == self.operands['answer'] else False
+
 
 class Application:
-    var = None
-    welcome_message = "Welcome to Python Institute's elementary arithmetic examination."
-    helper_reminder = '-Type "help" to see available commands.\n'
+    welcome_message: str = "Welcome to Python Institute's elementary arithmetic examination."
+    helper_reminder: str = '-Type "help" to see available commands.\n'
 
-    user_id = None
-    category = None
-    difficulty = "easy"
-    current_question = None
-    correct = 0
-    incorrect = 0
-    test_length = 3
-    test_time = 10
-    time_remaining = test_time
-    asked_questions = []
-    pi_factor = 1
+    user_id: Optional[str] = None
+    category: Optional[str] = None
+    category_string: Optional[str] = None
+    difficulty: str = "easy"
+    current_question: Optional[str] = None
+    current_answer: Optional[StrInt] = None
+    correct: int = 0
+    incorrect: int = 0
+    test_length: int = 3
+    test_time: int = 10
+    asked_questions: List[str] = []
+    pi_factor: int = 1
 
-    valid_subjects = {"addition": "+", "subtraction": "-", "multiplication": "*", "division": "/"}
+    valid_subjects: Dict[str, str] = {"addition": "+", "subtraction": "-", "multiplication": "*", "division": "/"}
 
-    help_text = ''.join([each for each in data.commands_box])
-    help_text = help_text + ''.join(data.command_list)
+    help_text: str = ''.join([each for each in data.commands_box])
+    help_text: str = help_text + ''.join(data.command_list)
 
     def __int__(self):
-        # self.category = None
-        # self.current_question = None
-        # self.correct = 0
-        # self.incorrect = 0
         pass
 
-    # mainloop
     def run(self):
+        """
+        mainloop
+        :return:  None
+        """
         print(self.welcome_message)
         while True:
             user_input = input(self.helper_reminder)
             self.parse_user_input(user_input)
 
     def administer_test(self):
+        """
+        administer the test to the user
+        :return: None
+        """
         # begins test by requesting user id and category
         if self.user_id is None:
             self.user_id = input("Please identify yourself: ")
+
         if self.category is None:
-            self.category = self.change_subject()
-        # for multiple-test takers, category change is prompted
-        else:
-            while True:
-                subject_change = input("Change category? [Y/N]")
-                if subject_change.lower() == 'y' or subject_change.lower() == 'n':
-                    break
-            if subject_change == 'y':
-                self.category = self.change_subject()
+            self.change_subject()
 
+        self._ask_questions()
+
+        continue_input = self._ask_continue()
+        if continue_input:
+            # recursive call for additional tests
+            self.administer_test()
+
+        self._reset_values()
+
+        return
+
+    def _reset_values(self):
+        self.correct = 0
+        self.incorrect = 0
+
+        return
+
+    def _ask_questions(self):
         # administers test questions until the end of the specific test length
-        while True and (self.correct + self.incorrect) < int(self.test_length):
-            self.current_question = self.generate_question(self.category)
-            self.asked_questions.append(self.current_question)
+        for i in range(self.test_length):
+            self.current_question = self.generate_question()
+            self.asked_questions.append(self.current_question.question_string)
 
-            while True:
-                user_answer = input(self.current_question)
-                if user_answer.lstrip('-').isdigit():
-                    break
-                else:
-                    print("Please provide a valid answer.", end="\n")
-
+            # ask the question
+            self._ask_question()
             # checks and records answer
-            user_answer = int(user_answer)
-            correct_answer = int(eval(self.current_question[8:-3]))
-            if correct_answer == user_answer:
-                self.correct += 1
-                print('correct', end=" || ")
-            else:
-                self.incorrect += 1
-                print(f'incorrect (the answer is {correct_answer})', end=" || ")
-            print(f'{self.correct} correct : {self.incorrect} incorrect')
+            self._check_answer()
 
         # provides feedback to the user and logs the results
         print(f"** You've answered {self.correct} of {self.correct + self.incorrect} questions correctly. **")
         self.save_file(self.user_id, self.category, str(self.correct) + "/" + str(self.correct + self.incorrect))
 
-        # reset values
-        self.correct = 0
-        self.incorrect = 0
+        return
 
-        # recursive call for additional tests
-        while True:
-            continue_input = input("Would you like to take another test? [Y/N]")
-            if continue_input.lower() == 'y' or continue_input.lower() == 'n':
-                if continue_input.lower() == 'y':
-                    self.administer_test()
-                    break
-                else:
-                    break
+    def _ask_question(self):
+        """
+        prompts the user with the question and recurses on invalid input
 
-    # generates pseudo-unique, randomized operands
-    def generate_question(self, category, difficulty="easy"):
-        while True:  # do-while in python
-            if difficulty == "easy":
-                if category != "/":
-                    if category == "+" or category == "-":
-                        lower_range = 0 + self.pi_factor
-                        upper_range = 100 * self.pi_factor
-                    elif category == "*":
-                        lower_range = 0 + self.pi_factor
-                        upper_range = 10 * self.pi_factor
-                    else:
-                        break
+        :return: None
+        """
+        self.current_answer = input(self.current_question.question_string)
+        if not self.current_answer.lstrip('-').isdigit():
+            print("Please provide a valid answer.")
+            return self._ask_question()
+        else:
+            self.current_answer = int(self.current_answer)
 
-                    num1 = random.randint(lower_range, upper_range)
-                    num2 = random.randint(lower_range, upper_range)
+        return
 
-                elif category == "/":
-                    lower_range = 3 * self.pi_factor
-                    upper_range = 100 * self.pi_factor
-                    nums = [random.randint(lower_range, upper_range), random.randint(lower_range, upper_range)]
-                    # restricts answer to int and >2
-                    while (max(nums) % min(nums) != 0) or (max(nums) / min(nums) < 3):
-                        nums = [random.randint(lower_range, upper_range), random.randint(lower_range, upper_range)]
-                    num1 = max(nums)
-                    num2 = min(nums)
+    def _check_answer(self):
+        """
+        checks the user answer
 
-                else:
-                    break
+        :return: None
+        """
+        if self.current_question.check_answer(self.current_answer):
+            self.correct += 1
+            print('correct', end=" || ")
+        else:
+            self.incorrect += 1
+            print(f'incorrect (the answer is {self.current_question.operands["answer"]})', end=" || ")
+        print(f'{self.correct} correct : {self.incorrect} incorrect')
 
-                # checks for pseudo-uniqueness
-                question = f"What is {num1} {category} {num2}?  "
-                if question not in self.asked_questions:
-                    return question
+        return
 
-    # requests user select the test category
-    # returns selected category
-    # accepts either words (eg "addition") or symbols (eg "+")
+    def _ask_continue(self):
+        continue_input = input(f"Would you like to take another {self.category_string.capitalize()} test? [Y/N]").lower()
+        if continue_input not in ('y', 'n'):
+            return self.ask_continue()
+        return True if continue_input == 'y' else False
+
+    @property
+    def number_ranges(self):
+        ranges = {
+            "+": {"lower": 0 + self.pi_factor, "upper": 100 * self.pi_factor},
+            "-": {"lower": 0 + self.pi_factor, "upper": 100 * self.pi_factor},
+            "*": {"lower": 0 + self.pi_factor, "upper": 10 * self.pi_factor},
+            "/": {"lower": 3 * self.pi_factor, "upper": 10 * self.pi_factor},
+        }
+        return ranges
+
+    @property
+    def lower_range(self):
+        return self.number_ranges[self.category]['lower']
+
+    @property
+    def upper_range(self):
+        return self.number_ranges[self.category]['upper']
+
+    def generate_question(self):
+        """
+        generate a question to ask the user
+        generates pseudo-unique, randomized operands
+
+        :param category str: the arithmetic category selected by the user
+        :param difficulty str: the difficulty level; defaults to 'easy'
+        :return: None
+        """
+        num1 = random.randint(self.lower_range, self.upper_range)
+        num2 = random.randint(self.lower_range, self.upper_range)
+        question = Question(num1, num2, self.category)
+        if question in self.asked_questions:
+            self.generate_question()
+        return question
+
     def change_subject(self):
-        display_message = ('Please identify examination type:\n'
-                           '\t"addition"\t\tor\t"+"\n'
-                           '\t"subtraction"\t\tor\t"-"\n'
-                           '\t"multiplication"\tor\t"*"\n'
-                           '\t"division"\t\tor\t"/"\n')
+        """
+        requests user select the test category
+        returns selected category
+        accepts either words (eg "addition") or symbols (eg "+")
 
-        while True:
-            subject = input(display_message)
-            if subject.lower() in self.valid_subjects.keys() or subject.lower() in self.valid_subjects.values():
-                break
+        :return str: subject to be examined selected by user
+        """
+        formatted_operator_options = '\n'.join([f'\t{k}\t\tor\t{v}' for k, v in self.valid_subjects.items()])
+        display_message = f'Please identify examination type:\n {formatted_operator_options}\n'
+        subject = input(display_message)
+        if subject.lower() not in self.valid_subjects.keys() and subject.lower() not in self.valid_subjects.values():
             print("Invalid entry.")
+            return self.change_subject()
 
         # parse user input
-        if len(subject) > 1:
-            selection = subject
-            subject = self.valid_subjects[selection]
+        if subject in self.valid_subjects.keys():
+            self.category_string = subject
+            self.category = self.valid_subjects[subject]
+        elif subject in self.valid_subjects.values():
+            self.category_string = [k for k, v in self.valid_subjects.items() if subject == v][0]
+            self.category = subject
         else:
-            selection = [k for k, v in self.valid_subjects.items() if subject == v][0]
+            raise ValueError(f'Invalid entry: {subject}')
 
-        print(f"{selection.capitalize()} has been selected.")
-        return subject
+        print(f"{self.category_string.capitalize()} has been selected.")
+        return
 
-    def parse_user_input(self, user_input):
-        # not supported in auto-py-to-exe D:
+    def parse_user_input(self, user_input: str):
+        """
+        parses the user input to the main menu
+
+        * not supported in auto-py-to-exe D:
+
+        :param user_input str: The user input into the main menu
+        :return: None
+        """
         match user_input.lower():
             case 'help':
                 print(self.help_text)
@@ -185,6 +267,11 @@ class Application:
                 print('That command is not recognized as a valid input.')
 
     def set_test_length(self):
+        """
+        updates the length of the test
+
+        :return: None
+        """
         while True:
             self.test_length = input("Enter desired test length: ")
             if self.test_length.isdigit():
@@ -193,9 +280,16 @@ class Application:
                     print(f"Test length has been changed to {self.test_length} questions.")
                     break
 
-    def save_file(self, user, category, score, encrypted=False):
-        # do ROT something for encrypted
+    # TODO: do ROT something for encrypted
+    def save_file(self, user: str, category: str, score: str):
+        """
+        saves the users scores
 
+        :param user str: the user name
+        :param category str: the subject of the exam
+        :param score str: the user score
+        :return: None
+        """
         file_header = "Examination Logs\n"
 
         try:
@@ -213,15 +307,30 @@ class Application:
         file.write(file_header)
         subject_name = [k for k, v in self.valid_subjects.items() if v == category][0]
 
-        file.write("User ID: " + str(user).title() + "\t\t" +
-                   "Topic: " + str(subject_name).capitalize() + "\t\t" +
-                   "Score: " + str(score) + "\t\t" +
-                   "Timestamp: " + str(datetime.now()) + '\n')
+        file.write(
+            "User ID: "
+            + str(user).title()
+            + "\t\t"
+            + "Topic: "
+            + str(subject_name).capitalize()
+            + "\t\t"
+            + "Score: "
+            + str(score)
+            + "\t\t"
+            + "Timestamp: "
+            + str(datetime.now())
+            + '\n'
+        )
         file.close()
 
     # fn vs method; static
     # logs are not specific to instance ? etc
     def display_logs(self):
+        """
+        displays exam history
+
+        :return: None
+        """
         try:
             file = open('user_data_logs.txt', 'r')
         except FileExistsError:
@@ -234,4 +343,5 @@ class Application:
         file.close()
 
 
-Application().run()
+if __name__ == "__main__":
+    Application().run()
