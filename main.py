@@ -1,4 +1,7 @@
-""" main.py """
+"""
+main.py
+* This file is auto-formated using BLACK
+"""
 
 from datetime import datetime
 import data
@@ -9,6 +12,7 @@ import random
 # methods vs functions, when and where
 # fn vs method; static
 # logs are not specific to instance ? etc
+
 
 class Application:
     var = None
@@ -141,11 +145,13 @@ class Application:
     # returns selected category
     # accepts either words (eg "addition") or symbols (eg "+")
     def change_subject(self):
-        display_message = ('Please identify examination type:\n'
-                           '\t"addition"\t\tor\t"+"\n'
-                           '\t"subtraction"\t\tor\t"-"\n'
-                           '\t"multiplication"\tor\t"*"\n'
-                           '\t"division"\t\tor\t"/"\n')
+        display_message = (
+            'Please identify examination type:\n'
+            '\t"addition"\t\tor\t"+"\n'
+            '\t"subtraction"\t\tor\t"-"\n'
+            '\t"multiplication"\tor\t"*"\n'
+            '\t"division"\t\tor\t"/"\n'
+        )
 
         while True:
             subject = input(display_message)
@@ -215,10 +221,20 @@ class Application:
         file.write(file_header)
         subject_name = [k for k, v in self.valid_subjects.items() if v == category][0]
 
-        file.write("User ID: " + str(user).title() + "\t\t" +
-                   "Topic: " + str(subject_name).capitalize() + "\t\t" +
-                   "Score: " + str(score) + "\t\t" +
-                   "Timestamp: " + str(datetime.now()) + '\n')
+        file.write(
+            "User ID: "
+            + str(user).title()
+            + "\t\t"
+            + "Topic: "
+            + str(subject_name).capitalize()
+            + "\t\t"
+            + "Score: "
+            + str(score)
+            + "\t\t"
+            + "Timestamp: "
+            + str(datetime.now())
+            + '\n'
+        )
         file.close()
 
     # fn vs method; static
