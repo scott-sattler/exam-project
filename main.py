@@ -10,13 +10,6 @@ from typing import Optional, List, Dict, Union
 
 StrInt = Union[str, int]
 
-# NOTE-TO-SELF:
-# when exactly use __int__ declarations and, uh, normal declarations under class
-# methods vs functions, when and where
-# fn vs method; static
-# logs are not specific to instance ? etc
-
-
 class Application:
     welcome_message: str = "Welcome to Python Institute's elementary arithmetic examination."
     helper_reminder: str = '-Type "help" to see available commands.\n'
