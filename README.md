@@ -13,4 +13,4 @@ Interview prompt at local company:
 
 The default test length in my implementation is 3 questions. This can be changed prior to starting the test (see the 'help' command).
 
-Gage made multiple improvements to my initial code, then suggested I develop unit tests for the project. I had not covered testing to any significant depth prior to writing the first implementation, and quickly realized that, while my implementation seemed easy enough to follow and was quick to write, testing would be needlessly difficult. Another large refactor was done to dramatically simplified testing.
+Gage made multiple improvements to my initial code, then suggested I develop unit tests for the project. I had not covered testing to any significant depth prior to writing the first implementation, and quickly realized that, while my implementation seemed easy enough to follow and was quick to write, testing would be needlessly difficult. Another large refactor was done to dramatically simplify testing.
