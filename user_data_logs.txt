@@ -23,3 +23,63 @@ User ID: Vonnewman		Topic: Multiplication		Score: 3/3		Timestamp: 2022-01-29 13:
 User ID: Vonnewman		Topic: Subtraction		Score: 2/3		Timestamp: 2022-01-29 13:48:48.472011
 User ID: Werner Heisenberg		Topic: Subtraction		Score: 1/3		Timestamp: 2022-01-29 14:06:24.473198
 User ID: Heisenberg		Topic: Subtraction		Score: 3/3		Timestamp: 2022-01-29 14:09:56.327195
+User ID: None		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 01:56:01.053053
+User ID: None		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 01:56:23.942966
+User ID: Use_Foo		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 02:00:10.721977
+User ID: A		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 02:02:26.093504
+User ID: User_Foo		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 02:07:07.628800
+User ID: User_Foo		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 02:11:37.223062
+User ID: User_Foo		Topic: Addition		Score: 0/6		Timestamp: 2022-02-24 02:11:37.227067
+User ID: User_Foo		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 02:11:59.216700
+User ID: User_Foo		Topic: Addition		Score: 0/6		Timestamp: 2022-02-24 02:11:59.220703
+User ID: User_Test_2		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 02:28:58.720702
+User ID: User_Test_2		Topic: Addition		Score: 0/6		Timestamp: 2022-02-24 02:28:58.725707
+User ID: User_Test_2		Topic: Addition		Score: 0/3		Timestamp: 2022-02-24 02:29:22.806135
+User ID: User_Test, Topic: Addition, Score: 0/6, Timestamp: 2022-02-26 16:15:09.106535
+User ID: Foojob, Topic: Subtraction, Score: 3/6, Timestamp: 2022-02-26 16:22:49.867786
+User ID: Foojob, Topic: Subtraction, Score: 0/0, Timestamp: 2022-02-26 16:22:49.872791
+User ID: Blue, Topic: Addition, Score: 0/6, Timestamp: 2022-02-26 18:36:50.193963
+User ID: Test, Topic: Addition, Score: 2/3, Timestamp: 2022-02-27 19:44:22.656246
+User ID: Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 19:44:31.709564
+Session ID: 1646013623, User ID: Session_Id, Topic: Multiplication, Score: 3/3, Timestamp: 2022-02-27 20:00:40.584443
+Session ID: 1646013642, User ID: Session_Id, Topic: Multiplication, Score: 1/3, Timestamp: 2022-02-27 20:00:50.011493
+Session ID: 1646013652, User ID: Session_Id, Topic: Multiplication, Score: 0/3, Timestamp: 2022-02-27 20:00:55.308357
+Session ID: 1646013667, User ID: Test2, Topic: Division, Score: 0/3, Timestamp: 2022-02-27 20:01:12.937407
+Session ID: 1646013739, User ID: 0, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:02:30.055874
+Session ID: 1646013739, User ID: 0, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:02:34.556640
+Session ID: 1646013739, User ID: 0, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:02:38.955138
+Session ID: 1646014973, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:22:53.085694
+Session ID: 1646014973, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:22:53.090697
+Session ID: 1646015173, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:26:13.345068
+Session ID: 1646015173, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:26:13.350072
+Session ID: 1646015742, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:35:42.194189
+Session ID: 1646015742, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:35:42.199194
+Session ID: 1646015771, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:36:11.193584
+Session ID: 1646015771, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:36:11.201592
+Session ID: 1646015864, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:37:44.340079
+Session ID: 1646015864, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:37:44.345082
+Session ID: 1646016023, User ID: User_Test, Topic: Addition, Score: 1/3, Timestamp: 2022-02-27 20:40:23.977795
+Session ID: 1646016023, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 20:40:23.984801
+Session ID: 1646019377, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 21:36:17.021184
+Session ID: 1646019377, User ID: User_Test, Topic: Addition, Score: 0/3, Timestamp: 2022-02-27 21:36:17.027190
+Session ID: 1646022613, User ID: User_Test, Subject: , Score: 0/3, Timestamp: 2022-02-27 22:30:13.690793, Topic: Addition
+Session ID: 1646022613, User ID: User_Test, Subject: , Score: 0/3, Timestamp: 2022-02-27 22:30:13.694796, Topic: Addition
+Session ID: 1646022739, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:32:19.562072
+Session ID: 1646022739, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:32:19.566075
+Session ID: 1646022802, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:33:22.760249
+Session ID: 1646022802, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:33:22.766254
+Session ID: 1646022827, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:33:47.376730
+Session ID: 1646022827, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:33:47.388740
+Session ID: 1646022847, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:34:07.045243
+Session ID: 1646022847, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:34:07.051248
+Session ID: 1646022869, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:34:29.082207
+Session ID: 1646022869, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:34:29.086211
+Session ID: 1646022942, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:35:42.896562
+Session ID: 1646022942, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:35:42.903568
+Session ID: 1646023025, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:37:05.647298
+Session ID: 1646023025, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:37:05.650302
+Session ID: 1646023252, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:40:52.181104
+Session ID: 1646023252, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:40:52.185108
+--------------------------
+Session ID: 1646023701, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:48:21.798605
+Session ID: 1646023701, User ID: User_Test, Subject: Addition, Score: 0/3, Timestamp: 2022-02-27 22:48:21.803610

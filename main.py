@@ -2,16 +2,17 @@
 main.py
 * This file is auto-formated using BLACK
 """
-
-from datetime import datetime
 import data
+from datetime import datetime
+import time
 import random
 from typing import Optional, List, Dict, Union, Callable
 import operator
 from dataclasses import dataclass
+import re
 
 
-StrInt = Union[str, int]
+# StrInt = Union[str, int]
 
 
 @dataclass
@@ -57,28 +58,30 @@ class Question:
 
 
 class Application:
+    # TODO(?): string data case consistency
     welcome_message: str = "Welcome to Python Institute's elementary arithmetic examination."
     helper_reminder: str = '-Type "help" to see available commands.\n'
+    help_text = data.help_text
+    valid_subjects = data.valid_subjects
+    invalid_notification = "Invalid entry."
+    selection_message = "{} has been selected."
 
-    user_id: Optional[str] = None
-    category: Optional[str] = None
-    category_string: Optional[str] = None
     difficulty: str = "easy"
-    current_question: Optional[str] = None
-    current_answer: Optional[StrInt] = None
+    user_id: Optional[str | None] = None
+    session_id: Optional[int | None] = None
+    subject_word: Optional[str | None] = None
+    subject_symbol: Optional[str | None] = None
+    current_question: Optional[str | None] = None
+    current_answer: Optional[str | int | None] = None  # TODO: allow int data type?
+    asked_questions: List[str] = []  # TODO: or none?
     correct: int = 0
     incorrect: int = 0
     test_length: int = 3
     test_time: int = 10
-    asked_questions: List[str] = []
     pi_factor: int = 1
 
-    valid_subjects: Dict[str, str] = {"addition": "+", "subtraction": "-", "multiplication": "*", "division": "/"}
-
-    help_text: str = ''.join([each for each in data.commands_box])
-    help_text: str = help_text + ''.join(data.command_list)
-
     def __int__(self):
+        # TODO: allow passing arguments at command line? eg user_id
         pass
 
     def run(self):
@@ -86,31 +89,83 @@ class Application:
         mainloop
         :return:  None
         """
+        user_prompt = self.helper_reminder
+
         print(self.welcome_message)
         while True:
-            user_input = input(self.helper_reminder)
+            user_input = input(user_prompt)
             self.parse_user_input(user_input)
+
+    def set_user_id(self):
+        user_prompt = "Please identify yourself: "
+
+        invalid_input = True
+        while invalid_input:
+            user_id = input(user_prompt)
+            invalid_input = not bool(re.match(r'\w+', user_id))
+
+        # noinspection PyUnboundLocalVariable
+        self.user_id = user_id
+
+    def set_subject(self):
+        """
+        # TODO: rewrite this
+        requests user select the test subject
+        returns selected subject
+        accepts either words (eg "addition") or symbols (eg "+")
+
+        :return str: examination subject the user selected
+        """
+        valid_subjects = self.valid_subjects
+        user_prompt = data.set_subject_user_prompt
+        invalid_notification = self.invalid_notification
+        selection_message = self.selection_message
+
+        user_input = input(user_prompt)
+        if user_input.lower() not in valid_subjects.keys() and user_input.lower() not in valid_subjects.values():
+            print(invalid_notification)
+            return self.set_subject()
+
+        # parse user input of either word or symbol
+        if user_input in valid_subjects.keys():  # parse word
+            self.subject_word = user_input
+            self.subject_symbol = valid_subjects[user_input]
+        elif user_input in valid_subjects.values():  # parse symbol
+            self.subject_word = [k for k, v in valid_subjects.items() if user_input == v][0]
+            self.subject_symbol = user_input
+
+        print(selection_message.format(self.subject_word.capitalize()))
 
     def administer_test(self):
         """
         administer the test to the user
         :return: None
         """
-        # begins test by requesting user id and category
-        if self.user_id is None:
-            self.user_id = input("Please identify yourself: ")
+        if self.session_id is None:
+            epoch_time = int(time.time())  # GH
+            self.session_id = epoch_time
 
-        if self.category is None:
-            self.change_subject()
+        # begins test by requesting user id and subject_symbol
+        if self.user_id is None:
+            self.set_user_id()
+
+        if self.subject_symbol is None:
+            self.set_subject()
 
         self._ask_questions()
+
+        # save results and reset values
+        score = str(self.correct) + "/" + str(self.correct + self.incorrect)
+        self.save_file(self.session_id,
+                       self.user_id,
+                       self.subject_symbol,
+                       score)
+        self._reset_values()
 
         continue_input = self._ask_continue()
         if continue_input:
             # recursive call for additional tests
             self.administer_test()
-
-        self._reset_values()
 
         return
 
@@ -131,9 +186,8 @@ class Application:
             # checks and records answer
             self._check_answer()
 
-        # provides feedback to the user and logs the results
+        # provides feedback to the user
         print(f"** You've answered {self.correct} of {self.correct + self.incorrect} questions correctly. **")
-        self.save_file(self.user_id, self.category, str(self.correct) + "/" + str(self.correct + self.incorrect))
 
         return
 
@@ -169,7 +223,7 @@ class Application:
         return
 
     def _ask_continue(self):
-        continue_input = input(f"Would you like to take another {self.category_string.capitalize()} test? [Y/N]").lower()
+        continue_input = input(f"Would you like to take another {self.subject_word.capitalize()} test? [Y/N]").lower()
         if continue_input not in ('y', 'n'):
             return self.ask_continue()
         return True if continue_input == 'y' else False
@@ -186,55 +240,27 @@ class Application:
 
     @property
     def lower_range(self):
-        return self.number_ranges[self.category]['lower']
+        return self.number_ranges[self.subject_symbol]['lower']
 
     @property
     def upper_range(self):
-        return self.number_ranges[self.category]['upper']
+        return self.number_ranges[self.subject_symbol]['upper']
 
     def generate_question(self):
         """
         generate a question to ask the user
         generates pseudo-unique, randomized operands
 
-        :param category str: the arithmetic category selected by the user
+        :param subject_symbol str: the arithmetic subject_symbol selected by the user
         :param difficulty str: the difficulty level; defaults to 'easy'
         :return: None
         """
         num1 = random.randint(self.lower_range, self.upper_range)
         num2 = random.randint(self.lower_range, self.upper_range)
-        question = Question(num1, num2, self.category)
+        question = Question(num1, num2, self.subject_symbol)
         if question in self.asked_questions:
             self.generate_question()
         return question
-
-    def change_subject(self):
-        """
-        requests user select the test category
-        returns selected category
-        accepts either words (eg "addition") or symbols (eg "+")
-
-        :return str: subject to be examined selected by user
-        """
-        formatted_operator_options = '\n'.join([f'\t{k}\t\tor\t{v}' for k, v in self.valid_subjects.items()])
-        display_message = f'Please identify examination type:\n {formatted_operator_options}\n'
-        subject = input(display_message)
-        if subject.lower() not in self.valid_subjects.keys() and subject.lower() not in self.valid_subjects.values():
-            print("Invalid entry.")
-            return self.change_subject()
-
-        # parse user input
-        if subject in self.valid_subjects.keys():
-            self.category_string = subject
-            self.category = self.valid_subjects[subject]
-        elif subject in self.valid_subjects.values():
-            self.category_string = [k for k, v in self.valid_subjects.items() if subject == v][0]
-            self.category = subject
-        else:
-            raise ValueError(f'Invalid entry: {subject}')
-
-        print(f"{self.category_string.capitalize()} has been selected.")
-        return
 
     def parse_user_input(self, user_input: str):
         """
@@ -281,12 +307,12 @@ class Application:
                     break
 
     # TODO: do ROT something for encrypted
-    def save_file(self, user: str, category: str, score: str):
+    def save_file(self, session: int, user: str, category: str, score: str):
         """
         saves the users scores
 
         :param user str: the user name
-        :param category str: the subject of the exam
+        :param subject_symbol str: the subject of the exam
         :param score str: the user score
         :return: None
         """
@@ -305,22 +331,18 @@ class Application:
         file = open('user_data_logs.txt', 'a')
 
         file.write(file_header)
-        subject_name = [k for k, v in self.valid_subjects.items() if v == category][0]
+        subject_name = [k for k, v in data.valid_subjects.items() if v == category][0]
 
-        file.write(
-            "User ID: "
-            + str(user).title()
-            + "\t\t"
-            + "Topic: "
-            + str(subject_name).capitalize()
-            + "\t\t"
-            + "Score: "
-            + str(score)
-            + "\t\t"
-            + "Timestamp: "
-            + str(datetime.now())
-            + '\n'
-        )
+        write_contents = data.log_contents.copy()
+        write_contents['Session ID'] = str(session)
+        write_contents['User ID'] = str(user).title()
+        write_contents['Subject'] = str(subject_name).capitalize()
+        write_contents['Score'] = str(score)
+        write_contents['Timestamp'] = str(datetime.now())
+
+        write_string = ', '.join([f'{k}{": "}{v}' for k, v in write_contents.items()])
+
+        file.write(write_string + '\n')
         file.close()
 
     # fn vs method; static
