@@ -1,5 +1,7 @@
 # exam-project
 
+.exe https://github.com/scott-sattler/exam-project/blob/main/MainFile.exe
+
 Interview prompt at local company:
 >Create a command line interface (CLI) in Python which proctors a math (arithmetic) test.
 >
