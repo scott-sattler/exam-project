@@ -18,5 +18,3 @@ The default test length in this implementation is 3 questions. This [not impleme
 Gage made multiple improvements to the initial code, then suggested development of unit tests. I had not covered testing to any significant depth prior to writing the first implementation, and quickly realized that, while my implementation seemed easy enough to follow and was quick to write, testing would be needlessly difficult. Minor refactors were done to improve clarity, function, and reduce the difficulty of testing. If this were for production, I would plan to further restructure the application and improve clarity in a comprehensive refactor.
 
 While I did improve my Python and general programming knowledge during this project, I ultimately decided to discontinue work because of the general inapplicability of the knowledge being gained, and with a desire to improve other areas of knowledge. I believe I could significantly improve in both planning and execution.
-
-Written in PyCharm 2021.3.1 with console git.
